@@ -19,14 +19,36 @@ defmodule ElixirFeedParser.Parsers.Helper do
 
   def to_date_time(date_time_string), do: to_date_time(date_time_string, "RFC_1123")
   def to_date_time(nil, _), do: nil
-  def to_date_time(date_time_string, format) do
-    case format do
-      "ISO_8601" -> 
-        {:ok, date_time, _} = DateTime.from_iso8601(date_time_string)
-        date_time
-      "RFC_1123" -> 
-        {:ok, date_time} = Timex.parse(date_time_string, "{RFC1123}")
-        date_time
+
+  def to_date_time(date_time_string, "ISO_8601") do
+    {:ok, date_time, _} = DateTime.from_iso8601(date_time_string)
+    date_time
+  end
+
+  def to_date_time(date_time_string, "RFC_1123") do
+    formats = [
+      "{RFC1123}",
+      "{WDshort}, {D} {Mshort} {YYYY} {h24}:{m}:{s} 0000",
+      "{D} {Mshort} {YYYY} {h24}:{m}:{s} {Zabbr}"
+    ]
+
+    parsed =
+      Enum.find_value(formats, fn format ->
+        case to_date_time(date_time_string, "RFC_1123", format) do
+          {:ok, date_time} -> date_time
+          _ -> false
+        end
+      end)
+
+    parsed || raise "Could not parse #{date_time_string}"
+  end
+
+  def to_date_time(date_time_string, "RFC_1123", timex_format) do
+    case Timex.parse(date_time_string, timex_format) do
+      {:ok, %NaiveDateTime{} = naive_date_time} ->
+        {:ok, naive_date_time |> DateTime.from_naive!("Etc/UTC")}
+      result ->
+        result
     end
   end
 end
