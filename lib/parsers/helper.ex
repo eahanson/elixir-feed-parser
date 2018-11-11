@@ -29,6 +29,7 @@ defmodule ElixirFeedParser.Parsers.Helper do
     formats = [
       "{RFC1123}",
       "{WDshort}, {D} {Mshort} {YYYY} {h24}:{m}:{s} 0000",
+      "{WDshort}, {D} {Mshort} {YYYY} {h24}:{m} {Zabbr}",
       "{D} {Mshort} {YYYY} {h24}:{m}:{s} {Zabbr}"
     ]
 
@@ -44,7 +45,10 @@ defmodule ElixirFeedParser.Parsers.Helper do
   end
 
   def to_date_time(date_time_string, "RFC_1123", timex_format) do
-    case Timex.parse(date_time_string, timex_format) do
+    date_time_string
+    |> String.trim()
+    |> Timex.parse(timex_format)
+    |> case do
       {:ok, %NaiveDateTime{} = naive_date_time} ->
         {:ok, naive_date_time |> DateTime.from_naive!("Etc/UTC")}
       result ->

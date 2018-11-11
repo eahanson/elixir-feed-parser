@@ -24,5 +24,15 @@ defmodule ElixirFeedParser.Test.HelperTest do
     test "can parse RFC_1123 datetimes without a weekday" do
       assert to_date_time("7 Mar 2016 18:16:14 GMT", "RFC_1123") |> to_iso8601() == "2016-03-07T18:16:14+00:00"
     end
+
+    test "can parse RFC_1123 datetimes that contain whitespace at the beginning and end" do
+      assert to_date_time("""
+                  Sun, 11 Nov 2018 19:27:15 GMT
+              """, "RFC_1123") |> to_iso8601() == "2018-11-11T19:27:15+00:00"
+    end
+
+    test "can parse RFC_1123 datetimes without seconds" do
+      assert to_date_time("Sun, 11 Nov 2018 19:20 GMT", "RFC_1123") |> to_iso8601() == "2018-11-11T19:20:00+00:00"
+    end
   end
 end
