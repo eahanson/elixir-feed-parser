@@ -34,5 +34,9 @@ defmodule ElixirFeedParser.Test.HelperTest do
     test "can parse RFC_1123 datetimes without seconds" do
       assert to_date_time("Sun, 11 Nov 2018 19:20 GMT", "RFC_1123") |> to_iso8601() == "2018-11-11T19:20:00+00:00"
     end
+
+    test "can parse RFC_1123 datetimes with bad DOWs" do
+      assert to_date_time("Web, 28 May 2014 00:00:00 +0000", "RFC_1123") |> to_iso8601() == "2014-05-28T00:00:00Z"
+    end
   end
 end

@@ -26,22 +26,25 @@ defmodule ElixirFeedParser.Parsers.Helper do
   end
 
   def to_date_time(date_time_string, "RFC_1123") do
+    without_leading_wday = date_time_string |> String.replace(~r/^[^,]*, /, "", global: false)
+
     formats = [
-      "{RFC1123}",
-      "{WDshort}, {D} {Mshort} {YYYY} {h24}:{m}:{s} 0000",
-      "{WDshort}, {D} {Mshort} {YYYY} {h24}:{m} {Zabbr}",
-      "{D} {Mshort} {YYYY} {h24}:{m}:{s} {Zabbr}"
+      {date_time_string, "{RFC1123}"},
+      {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m}:{s} 0000"},
+      {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m}:{s} +0000"},
+      {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m}:{s} {Zabbr}"},
+      {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m} {Zabbr}"}
     ]
 
     parsed =
-      Enum.find_value(formats, fn format ->
-        case to_date_time(date_time_string, "RFC_1123", format) do
+      Enum.find_value(formats, fn {string, format} ->
+        case to_date_time(string, "RFC_1123", format) do
           {:ok, date_time} -> date_time
           _ -> false
         end
       end)
 
-    parsed || raise "Could not parse #{date_time_string}"
+    parsed || raise "Could not parse date: #{date_time_string}"
   end
 
   def to_date_time(date_time_string, "RFC_1123", timex_format) do
