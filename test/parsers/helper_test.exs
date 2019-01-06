@@ -38,5 +38,27 @@ defmodule ElixirFeedParser.Test.HelperTest do
     test "can parse RFC_1123 datetimes with bad DOWs" do
       assert to_date_time("Web, 28 May 2014 00:00:00 +0000", "RFC_1123") |> to_iso8601() == "2014-05-28T00:00:00Z"
     end
+
+    @tag :skip
+    test "can parse RFC_1123 datetimes IN ALL CAPS" do
+      assert to_date_time("THU, 06 SEP 2018 16:33:05 GMT", "RFC_1123") |> to_iso8601() == "2018-09-06T16:33:05+00:00"
+    end
+
+    test "can parse RFC_1123 datetimes with funny spacing" do
+      assert to_date_time("Sun ,21 Sep 2008", "RFC_1123") |> to_iso8601() == "2008-09-21T00:00:00Z"
+    end
+
+    test "can parse RFC_1123 datetimes with missing timezone" do
+      assert to_date_time("Sun, 06 Jan 2019 14:01:18 ", "RFC_1123") |> to_iso8601() == "2019-01-06T14:01:18Z"
+    end
+
+    test "can parse RFC_1123 datetimes with no time or timezone" do
+      assert to_date_time("Mon, 15 Nov 2010", "RFC_1123") |> to_iso8601() == "2010-11-15T00:00:00Z"
+    end
+
+    @tag :skip
+    test "can parse RFC_1123 datetimes with missing comma" do
+      assert to_date_time("Wed 04 March 2012 01:00:00 GMT", "RFC_1123") |> to_iso8601() == "2012-04-04T01:00:00Z"
+    end
   end
 end

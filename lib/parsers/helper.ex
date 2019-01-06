@@ -26,14 +26,16 @@ defmodule ElixirFeedParser.Parsers.Helper do
   end
 
   def to_date_time(date_time_string, "RFC_1123") do
-    without_leading_wday = date_time_string |> String.replace(~r/^[^,]*, /, "", global: false)
+    without_leading_wday = date_time_string |> String.replace(~r/^[^,]*, ?/, "", global: false) |> String.trim()
 
     formats = [
       {date_time_string, "{RFC1123}"},
       {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m}:{s} 0000"},
       {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m}:{s} +0000"},
       {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m}:{s} {Zabbr}"},
-      {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m} {Zabbr}"}
+      {without_leading_wday, "{D} {Mshort} {YYYY} {h24}:{m} {Zabbr}"},
+      {without_leading_wday <> " +0000", "{D} {Mshort} {YYYY} {h24}:{m}:{s} +0000"},
+      {without_leading_wday <> " 00:00:00 +0000", "{D} {Mshort} {YYYY} {h24}:{m}:{s} +0000"}
     ]
 
     parsed =
